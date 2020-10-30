@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: process-iee
+  name: iee-seed
+spec:
+  template:
+    spec:
+      containers:
+      - name: iee-seed
+        image: cyfronet/iee
+        env:
+          - name: DB_PASS
+            value: zaq12wsx
+        command: ["rails",  "db:seed" ]
+      restartPolicy: Never
+  backoffLimit: 0

@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: process-iee
+  name: iee-migr
+spec:
+  template:
+    spec:
+      containers:
+      - name: iee-migr
+        image: cyfronet/iee
+        env:
+          - name: DB_PASS
+            value: zaq12wsx
+        command: ["rails",  "db:migrate" ]
+      restartPolicy: Never
+  backoffLimit: 0

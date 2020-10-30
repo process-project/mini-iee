@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: process-iee
+  name: iee-create
+spec:
+  template:
+    spec:
+      containers:
+      - name: iee-create
+        image: cyfronet/iee
+        env:
+          - name: DB_PASS
+            value: zaq12wsx
+        command: ["rails",  "db:create" ]
+      restartPolicy: Never
+  backoffLimit: 0

@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Path
+      command: pwd
+      register: out
+
+    - debug: var=out
+
+    - name: Who
+      command: whoami
+      register: out
+
+    - debug: var=out

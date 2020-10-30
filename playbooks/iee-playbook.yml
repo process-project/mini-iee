@@ -1,0 +1,80 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: Copy Postgres deployment file
+    copy:
+        src: ./postgres.yml
+        dest: /home/vagrant/postgres.yml
+  
+  - name: Copy IEE DB INIT deployment file
+    copy:
+        src: ./iee-create.yml
+        dest: /home/vagrant/iee-create.yml
+  
+  - name: Copy IEE DB MIGR deployment file
+    copy:
+        src: ./iee-migr.yml
+        dest: /home/vagrant/iee-migr.yml
+  
+  - name: Copy IEE DB SEED deployment file
+    copy:
+        src: ./iee-seed.yml
+        dest: /home/vagrant/iee-seed.yml
+  
+  - name: Copy IEE APP deployment file
+    copy:
+        src: ./iee.yml
+        dest: /home/vagrant/iee.yml
+  
+  - name: Create iee namespace
+    become: False
+    command: kubectl create ns process-iee
+
+  - name: Wait 5s
+    become: False
+    command: sleep 5
+  
+  - name: Deploy Postgres
+    become: False
+    command: kubectl create -f postgres.yml
+
+  - name: Wait for Postgresql  up
+    become: False
+    command: kubectl wait -n process-iee --for=condition=Ready pod/psql --timeout=360s
+  
+  - name: Wait 5s
+    become: False
+    command: sleep 5
+  
+  - name: Create DB
+    become: False
+    command: kubectl create -f iee-create.yml
+    
+  - name: Wait for DB created
+    become: False
+    command: kubectl wait -n process-iee --for=condition=complete job/iee-create --timeout=360s
+
+  - name: Migrate DB
+    become: False
+    command: kubectl create -f iee-migr.yml
+    
+  - name: Wait for DB migrated
+    become: False
+    command: kubectl wait -n process-iee --for=condition=complete job/iee-migr --timeout=360s
+  
+  - name: Seed DB
+    become: False
+    command: kubectl create -f iee-seed.yml
+    
+  - name: Wait for DB seed
+    become: False
+    command: kubectl wait -n process-iee --for=condition=complete job/iee-seed --timeout=360s
+
+  - name: Deploy IEE APP
+    become: False
+    command: kubectl create -f iee.yml
+
+  - name: Wait for IEE APP up
+    become: False
+    command: kubectl wait -n process-iee --for=condition=Ready pod/iee --timeout=360s
